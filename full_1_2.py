@@ -11,7 +11,7 @@ from pptx.util import Inches, Pt
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def extract_media_from_pptx(pptx_file, output_dir, bucket_name, aws_access_key_id, aws_secret_access_key):
+def extract_media_from_pptx(pptx_file, output_dir, bucket_name, access_key_id, secret_access_key):
     try:
         # Create a temporary ZIP file name
         zip_file = os.path.join(output_dir, os.path.splitext(os.path.basename(pptx_file))[0] + ".zip")
@@ -28,7 +28,7 @@ def extract_media_from_pptx(pptx_file, output_dir, bucket_name, aws_access_key_i
         # Extract media files from the "ppt/media" folder
         media_paths = {}
         media_positions = {}
-        s3 = boto3.client('s3', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+        s3 = boto3.client('s3', access_key_id=access_key_id, secret_access_key=secret_access_key)
         with zipfile.ZipFile(zip_file, 'r') as zip_ref:
             for zip_info in zip_ref.infolist():
                 if zip_info.filename.startswith("ppt/media/"):
@@ -104,8 +104,8 @@ def extract_slide_text(pptx_file, output_dir):
         print(f"An error occurred during text extraction: {e}")
         return {}
 
-def extract_slide_text_and_media(pptx_file, output_dir, bucket_name, aws_access_key_id, aws_secret_access_key):
-    media_paths, media_positions = extract_media_from_pptx(pptx_file, output_dir, bucket_name, aws_access_key_id, aws_secret_access_key)
+def extract_slide_text_and_media(pptx_file, output_dir, bucket_name, access_key_id, secret_access_key):
+    media_paths, media_positions = extract_media_from_pptx(pptx_file, output_dir, bucket_name, access_key_id, secret_access_key)
     text_content = extract_slide_text(pptx_file, output_dir)
 
     # Pair slide text with media paths and positions
@@ -124,12 +124,12 @@ def extract_slide_text_and_media(pptx_file, output_dir, bucket_name, aws_access_
 # Example usage
 pptx_file = "jpictory.pptx"
 bucket_name = "ppt2video"
-aws_access_key_id = ""
-aws_secret_access_key = ""
-aws_session_token = ""
+access_key_id = ""
+secret_access_key = ""
+session_token = ""
 
 output_dir = "output_media"
-paired_data = extract_slide_text_and_media(pptx_file, output_dir, bucket_name, aws_access_key_id, aws_secret_access_key)
+paired_data = extract_slide_text_and_media(pptx_file, output_dir, bucket_name, access_key_id, secret_access_key)
 
 # Print paired data (slide number, slide text, media paths)
 for slide_num, data in paired_data.items():
